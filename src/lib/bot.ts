@@ -1,11 +1,6 @@
-import { bskyAccount, bskyService } from "./config.js";
-import type {
-  AtpAgentLoginOpts,
-  AtpAgentOpts,
-  AppBskyFeedPost,
-} from "@atproto/api";
-import atproto from "@atproto/api";
-const { BskyAgent, RichText } = atproto;
+import { bskyAccount, bskyService } from './config';
+import type { AtpAgentLoginOpts, AtpAgentOptions, AppBskyFeedPost } from '@atproto/api';
+import { AtpAgent, RichText } from '@atproto/api';
 
 type BotOptions = {
   service: string | URL;
@@ -20,8 +15,8 @@ export default class Bot {
     dryRun: false,
   } as const;
 
-  constructor(service: AtpAgentOpts["service"]) {
-    this.#agent = new BskyAgent({ service });
+  constructor(service: AtpAgentOptions['service']) {
+    this.#agent = new AtpAgent({ service });
   }
 
   login(loginOpts: AtpAgentLoginOpts) {
@@ -29,12 +24,9 @@ export default class Bot {
   }
 
   async post(
-    text:
-      | string
-      | (Partial<AppBskyFeedPost.Record> &
-          Omit<AppBskyFeedPost.Record, "createdAt">)
+    text: string | (Partial<AppBskyFeedPost.Record> & Omit<AppBskyFeedPost.Record, 'createdAt'>),
   ) {
-    if (typeof text === "string") {
+    if (typeof text === 'string') {
       const richText = new RichText({ text });
       await richText.detectFacets(this.#agent);
       const record = {
@@ -47,10 +39,7 @@ export default class Bot {
     }
   }
 
-  static async run(
-    getPostText: () => Promise<string>,
-    botOptions?: Partial<BotOptions>
-  ) {
+  static async run(getPostText: () => Promise<string> | string, botOptions?: Partial<BotOptions>) {
     const { service, dryRun } = botOptions
       ? Object.assign({}, this.defaultOptions, botOptions)
       : this.defaultOptions;
